@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+- 9.5.0
+branchs:
+  only:
+  - master
+install:
+- npm install
+script:
+- npm run build
+addons:
+  ssh_known_hosts:
+  - 118.25.8.238 #受信主机，你的Linux服务器ip
+before_install:
+- openssl aes-256-cbc -K $encrypted_ff5a34373b14_key -iv $encrypted_ff5a34373b14_iv
+  -in id_rsa.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa
+- echo -e "Host 118.25.8.238\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+before_script: npm install
+script:
+- npm run build
+after_success:
+- npm prune --production 
+- tar -jcf react-blog.tar.bz2 *
+- scp react-blog.tar.bz2 CBC@118.25.8.238:~/
+- ssh CBC@118.25.8.238 'mkdir -p react-blog && tar -jxf react-blog.tar.bz2 -C react-blog'
